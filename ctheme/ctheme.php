@@ -62,6 +62,10 @@ class CTheme extends CKernal {
 	static public function destroyCTheme($ctheme) {	
 		CKernal :: destroyCKernal($ctheme);
 	} // end destroyCTheme()
+	
+	static public function customize($strfunc) {
+		CTheme_addCustomizeFunc($strfunc);
+	} // end customize()
 } // end CTheme
 
 // includes

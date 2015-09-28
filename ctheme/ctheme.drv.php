@@ -106,6 +106,7 @@ function CTheme_doBody($ctheme) {
 
 function CTheme_doAdminBody($ctheme) {
 	CHook :: fire("admin_body");
+	CTheme_doCustomizeFuncs($ctheme);
 } // end CTheme_doAdminBody()
 
 function CTheme_getThemeName() {
@@ -146,6 +147,25 @@ function CTheme_printError($message, $errno=E_USER_ERROR) {
     } // end else
 	return false;
 } // end CTheme_printError()
+
+$CTheme_CustomizeFuncs;
+function CTheme_addCustomizeFunc($strfunc){
+	global $CTheme_CustomizeFuncs;
+	if(!function_exists($strfunc))
+		return;
+	//if(!$CTheme_CustomizeFuncs)
+	//	$CTheme_CustomizeFuncs=array();
+	$CTheme_CustomizeFuncs[]=$strfunc;
+} // end CTheme_addCustomizeFunc()
+
+function CTheme_doCustomizeFuncs($ctheme){
+	global $CTheme_CustomizeFuncs;
+	if($CTheme_CustomizeFuncs == NULL)
+		return;
+	foreach($CTheme_CustomizeFuncs as $index => $strfunc){
+		$strfunc($ctheme);
+	} // end foreach
+} // end CTheme_fireCustomizeFuncs()
 
 // hooks
 function CTheme_pluginActivation() {CTheme_checkC3DClassesSDK();}

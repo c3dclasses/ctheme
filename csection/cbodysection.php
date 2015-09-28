@@ -20,12 +20,14 @@ class CBodySection extends CSection {
 	} // innerhtml()
 	
 	public function admin_body() {
+		/*
 		$ctheme = CTheme :: getCTheme();
 		if (!$ctheme || !$ccontrols=$ctheme->getCForm()->getCControls())
 			return;
 		$ccontrols->section("cbody", "Body", array("description"=>"This is the body section."));	
 		$ccontrols->text("ctheme-no-image-url", "Hello, World", array("label"=>"No Image Availiable"));
 		$ccontrols->textarea("ctheme-site-style-text", "", array("label"=>"Site Styles"));
+		*/
 	} // end admin_body()
 } // end CBodySection
 ?>
