@@ -1,14 +1,15 @@
 <?php
-//-------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // file: cwidgethook.drv.php
-// desc: defines the wordpress widget to c3dclasses widget driver
-//-------------------------------------------------------------------
+// desc: implements the c3dclasses widget object using wordpress widget
+//-----------------------------------------------------------------------
 
 //-------------------------------------------------------
 // name: CWidgetHook
 // desc: this defines hooking functionality
 //-------------------------------------------------------
 class CWidgetHook {
+	// members
 	public static $m_hook=NULL;	// stores the callbacks that hooks the form, widget, update, etc methods
 	
 	// sets the hook
@@ -22,8 +23,15 @@ class CWidgetHook {
 		if (CWidgetHook :: $m_hook == NULL || isset(CWidgetHook :: $m_hook[$strname]) == false)
 			return;
 		$callbacks = CWidgetHook :: $m_hook[$strname];
-		foreach($callbacks as $index => $callback)
-			$callback($cwidgetinstance);
+		foreach($callbacks as $index => $callback) {
+			//$callback($cwidgetinstance);
+			try {
+				$callback($cwidgetinstance);
+			} // end try
+			catch(Exception $e) {
+				alert("Exception");
+			} // end catch()
+		} // end foreach()
 		return;
 	} // end doHook()
 	
@@ -34,6 +42,9 @@ class CWidgetHook {
 			foreach($wp_registered_widgets as $id => $params) {
 				if (($cwidgetinstance = CWidgetInstance :: getCWidgetInstanceByID($id, $params)) != NULL) {
 					$cwidget = $cwidgetinstance->getWidget();
+					if(!is_active_widget( false, false, $cwidget->id_base, true )){
+						continue; // skip  
+					} // end if
 					if (method_exists($cwidget, "init"))
 						$cwidget->init(); 
 					CWidgetHook :: doHook("admin_init", $cwidgetinstance);
@@ -43,23 +54,27 @@ class CWidgetHook {
 		return;
 	} // end doInitDashboard()
 	
-	public static function doInitSite($badmin) {
+	public static function doInitSite() {
 		global $wp_registered_widgets;
 		if ($wp_registered_widgets!=NULL) {
 			foreach($wp_registered_widgets as $id => $params) {
 				if (($cwidgetinstance = CWidgetInstance :: getCWidgetInstanceByID($id, $params)) != NULL) {
 					$cwidget = $cwidgetinstance->getWidget();
+					if(!is_active_widget( false, false, $cwidget->id_base, true )){
+						continue; // skip  
+					} // end if
 					if (method_exists($cwidget, "init"))
 						$cwidget->init(); 
 					CWidgetHook :: doHook("init", $cwidgetinstance);	
-				}
+				} // end if
 			} // end foreach
 		} // end if
 		return;
 	} // end doInitSite()
 	
 	public static function doForm($widget) {
-		if ($cwidgetinstance = CWidgetInstance :: getCWidgetInstanceByID($widget->id)) {
+		if (is_active_widget( false, false, $widget->id_base, true ) && 
+			$cwidgetinstance = CWidgetInstance :: getCWidgetInstanceByID($widget->id)) {
 			CWidgetHook :: doHook("form", $cwidgetinstance);
 			CWidgetHook :: doHook("admin_body", $cwidgetinstance);
 		} // end if
@@ -88,21 +103,25 @@ class CWidgetHook {
 			call_user_func_array($callback, $params);
 		if ($cwidgetinstance)
 			CWidgetHook :: doHook("body", $cwidgetinstance);
-		$str = ob_end();
+		$str = ob_get_contents();
+		ob_end_clean();
 		$cwidgetinstance->html($str);
 		echo $cwidgetinstance->body();
 		CWidgetHook :: doHook("post-body", $cwidgetinstance);
 	} // end doBody()
 } // end CWidgetHook
 
-// hook events
+/////////////////
+// hooks
+/////////////////
+
 CHook :: add("init", "CWidgetHook_init"); // hook to create cwidgetinstances 'init'
 function CWidgetHook_init() { CWidgetHook :: doInitSite(); }
 
 add_action('sidebar_admin_setup', 'CWidgetHook_sidebarAdminSetup');	// hook to initialize cwidgets 'init_admin'
 function CWidgetHook_sidebarAdminSetup() { CWidgetHook :: doInitDashboard(); }
 
-add_action("in_widget_form", "CWidgetHook_inWidgetForm"); // hook to add extra  'form'
+add_action("in_widget_form", "CWidgetHook_inWidgetForm"); // hook to add extra 'form'
 function CWidgetHook_inWidgetForm($widget) { CWidgetHook :: doForm($widget); }
 
 add_filter('dynamic_sidebar_params', 'CWidgetHook_dynamicSidebarParams', 10);	
@@ -122,7 +141,7 @@ function CWidgetHook_widgetCallback() {
 	$callback=$wp_registered_widgets[$id]['callback_cwidget_redirect'];
 	$wp_registered_widgets[$id]['callback'] = $callback;
 	CWidgetHook :: doBody($callback, $params);	
-} // end  CWidget_widgetCallback()
+} // end CWidget_widgetCallback()
 
 add_filter('widget_update_callback', 'CWidgetHook_widgetUpdateCallback', 10, 3); // hook to override 'update'
 function CWidgetHook_widgetUpdateCallback($instance, $new_instance, $old_instance, $widget) { 

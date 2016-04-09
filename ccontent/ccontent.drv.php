@@ -1,146 +1,119 @@
 <?php
-//-----------------------------------------------------
+//------------------------------------------------------------------
 // file: ccontent.drv.php
-// desc: defines ccontent <=> cwidgetinstances link
-//-----------------------------------------------------
+// desc: defines the relationship of ccontent and cwidgetinstances 
+//------------------------------------------------------------------
 
 //////////////////
 // functions
-
-/*
-function CContent_create($cform, $id, $strccontenttype){
-	if(!$cform || !$strccontenttype || !$id)
-		return NULL;
-	$cwidgetform = $cform->getCForm("ccontent-".$id, NULL, "CWidgetForm", "CWidgetOptions", "CWidgetControls");
-	if(!$cwidgetform)
-		return NULL;
-	// allocate a new content type
-	if(class_exists($strccontenttype)) 
-		$ccontent = new $strccontenttype();
-	else{
-		 $ccontent = new CContentByCallbacks();
-		 $ccontent->setCContentType($strccontenttype);
-	} // end else
-	if(!$ccontent)
-		return NULL;
-	// create and setup the content type
-	$ccontent->create($cwidgetform); 
-	$ccontent->init();	
-	return $ccontent;		
-} // end createCContent()
-
-function CContent_init($cform) {
-	// get the ccontent stored for this widget
-	if( !$cform || !($coptions = $cform->getCOptions()) || 
-	    ($strinstances = $coptions->option("ccontent-instances")) == "" ||	
-		$strinstances == NULL || !($instances = explode(",",$strinstances)))
-		return NULL;
-	$ccontents = NULL;
-	foreach($instances as $idandtype) {
-		$idandtype = explode(":",$idandtype);	// get the id and type for each instance
-		$id = $idandtype[0];
-		$type = $idandtype[1];
-		if($id == "" || $type == "")
-			continue;
-		if(($ccontent = CContent_create($cform,$id,$type)) != NULL) {
-			$strname = $ccontent->getCForm()->getName();
-			$ccontents[$strname] = $ccontent;
-		} // end if
-	} // end for
-	return $ccontents;
-} // end CContent_init()
-
-//////////////////////////////////
-// admin form helper methods
-
-function CContent_requestHandler($cform){
-	// check if cform exist
-	if(!$cform || !($coptions = $cform->getCOptions()) || !($ccontrols = $cform->getCControls()))
-		return false;
-	// get the content type the user selected
-	$type = $coptions->option("sel-ccontent-type");	
-	if($type == "NULL")
-		return false;
-	// get the counter id
-	if(($id = $coptions->option("ccontent-counter"))=="") 
-		$id=0;
-	// get the content instances for this widget
-	$instances = $coptions->option("ccontent-instances");	
-	if($instances=="" || $instances==NULL)
-		$instances = $id.":".$type;
-	else $instances .= ",".$id.":".$type;
-	$coptions->option("ccontent-instances",$instances);
-	$coptions->option("ccontent-counter",$id+1);		
-	return true;
-} // end CContent_requestHandler()
-
-function CContent_createInstanceForm($cform) {
-	if(!$cform || !($coptions = $cform->getCOptions()) || 
-	   !($ccontrols = $cform->getCControls()))
-		return NULL;
-	// reset selected content type
-	$coptions->option("content-type","NULL");
-	// build the content form
-	$ccontenttypes = CContent :: getCContentTypes();
-	echo "<hr />";	
-	echo "<p>";
-	echo $ccontrols->label("sel-ccontent-type", "Create Content");
-	echo $ccontrols->select("sel-ccontent-type", "NULL", $ccontenttypes);
-	echo $ccontrols->hidden("ccontent-counter", "0");
-	echo $ccontrols->hidden("ccontent-instances", "");
-	echo '<input type="submit" value="Create" class="button button-primary widget-control-save right" id="widget-cwidget-8-savewidget" name="createwidget">';
-	echo "</p>";
-	return;	
-} // end CContent_createInstanceForm()
-
-function CContent_editInstanceForm($ccontent) {
-	if(!$ccontent || !($coptions = $ccontent->getCOptions()))
-		return;
-	$id = $ccontent->getCForm()->getName();
-	echo "<p>";
-	echo "<form method='post' action=''>";
-	echo '<input type="submit" value="Delete" class="button button-primary right" name="delete-ccontent-instance">';
-	echo '<input type="hidden" value="'.$id.'" name="ccontent-instance">';
-	echo "</form>";
-	echo "</p>";
-	return;
-} // end CContent_editInstanceForm()
-*/
+//////////////////
 
 //////////////////////////////
-// cwidget hooks
+// cwidgethooks
+//////////////////////////////
 
-CWidgetHook :: hook("init", "CContent_doInit");
-function CContent_doInit($cwidgetinstance) { 
-	if(!$cwidgetinstance)
-		return;
-	printbr("init ccontent here");
-	//$cform = $cwidgetinstance->getCForm();
-	//if(($ccontents=CContent_init($cform))!=NULL)
-	// 	$cwidgetinstance->m_ccontents=$ccontents;
-	return;
-} // end CContent_doInit()
+//--------------------------------------------------------------------------------
+// name: CWidgetHook_CContent_doInit()
+// desc: initializes a cwidget's ccontent instances when the theme's site loads
+//--------------------------------------------------------------------------------
+function CWidgetHook_CContent_doInit($cwidgetinstance) {
+	//alert("init: " . $cwidgetinstance->getWidgetID());
+} // end CWidgetHook_CContent_doInit()
+CWidgetHook :: hook("init", "CWidgetHook_CContent_doInit");
 
-CWidgetHook :: hook("admin_body", "CContent_doForm");
-function CContent_doForm($cwidgetinstance) {
-	if(!$cwidgetinstance)
-		return;
-	$cform = $cwidgetinstance->getCForm();
+//--------------------------------------------------------
+// name: CWidgetHook_CContent_doBody()
+// desc: renders the body of the cwidget's ccontent 
+//--------------------------------------------------------
+function CWidgetHook_CContent_doBody($cwidgetinstance) {
+} // end CWidgetHook_CContent_doInit()
+CWidgetHook :: hook("body", "CWidgetHook_CContent_doBody");
+
+//--------------------------------------------------------------------------------------
+// name: CWidgetHook_CContent_doAdminInit()
+// desc: initializes a cwidget's ccontent instances when the theme's dashboard loads
+//--------------------------------------------------------------------------------------
+function CWidgetHook_CContent_doAdminInit($cwidgetinstance) {
+	//alert("admin_init: " . $cwidgetinstance->getWidgetID());
+} // end CWidgetHook_CContent_doInit()
+CWidgetHook :: hook("admin_init", "CWidgetHook_CContent_doAdminInit");
+
+function ___path( $arr ){
+	return implode("/",$arr);
+}
+
+
+//-----------------------------------------------------------
+// name: CWidgetHook_CContent_doAdminBody()
+// desc: renders the widget dashboard body of ccontent 
+//-----------------------------------------------------------
+function CWidgetHook_CContent_doAdminBody($cwidgetinstance) {
 	
-	printbr("show ccontent form here");
+	throw new Exception("ERROR: CContent Problem");
+	
 	/*
-	CContent_requestHandler($cform);		//
-	CContent_createInstanceForm($cform);	// create an instance 
-	CContent_doInit($cwidgetinstance);		// initialize all the ccontent instances
-	if($ccontents = $cwidgetinstance->m_ccontents) {
-		foreach($ccontents as $name => $ccontent) {
-			$cform = $ccontent->getCForm();
-			//if(delCContentInstanceFromRequest($cform)==false)
-			//echoCContentInstanceMetaData($cform);
-			$ccontent->admin_body();
-			CContent_editInstanceForm($ccontent);
-		} // end foreach
+	$type = $cwidgetinstance->getWidgetClassName();
+	$num = $cwidgetinstance->getWidgetNumber();
+	$path = ___path(array($type,$num));
+	include_cwidget_memory($path, $path);
+	$cmemory = use_memory($path);
+	if($cmemory) {
+		printbr("included memory");
+		printbr("get_option($type):");
+		print_r(get_option($type));
+		printbr();
+		printbr();
+		printbr();		
+		printbr("CMemory($path):");
+		printbr($cmemory->toString());
 	} // end if
+	else alert("did not include memory");
 	*/
-} // end CContent_doForm()
+} // end CWidgetHook_CContent_doForm()
+CWidgetHook :: hook("admin_body", "CWidgetHook_CContent_doAdminBody");
+
+///////////////////////////
+// ccontent ajax scripts
+///////////////////////////
+
+//--------------------------------------------------
+// name: CContent_doScripts()
+// desc: include ccontent driver scripts
+//--------------------------------------------------
+function CContent_doScripts() {
+    wp_enqueue_script( 'ccontent', relname( __FILE__ ) . '/ccontent.drv.js', array('jquery') );
+} // end CContent_doScripts()
+add_action('admin_enqueue_scripts', 'CContent_doScripts');
+
+//--------------------------------------------------------------
+// name: CContent_doCreateInstance()
+// desc: creates ccontent instance and adds it to the widget
+//--------------------------------------------------------------
+function CContent_doCreateInstance() {
+	$cwidget_id = $_POST["widget_id"];
+	$ccontent_type = $_POST["ccontent_type"];	
+	if ($cwidget_id == "" || $ccontent_type == "" || 
+		!$ctheme = CTheme :: getCTheme()) {
+		echo "ERROR: couldn't create new content.";
+	} // end if
+			
+	// create a new content id		
+	$ccontent_id = $ctheme->option("ccontent_id");
+	$ccontent_id = ($ccontent_id === "") ? 0 : (((int)$ccontent_id)+1);
+	
+	// create instances and add it to this widgets instances
+	$ccontent_instance = $ccontent_type . ":" . $ccontent_id;
+	$ccontent_instances = $ctheme->option($cwidget_id);
+	$ccontent_instances = ($ccontent_instances=="") ? $ccontent_instance : $ccontent_instances . "," . $ccontent_instance;
+	$ccontent_cwidget_instances = $ctheme->option("ccontent_instances");
+	$ccontent_cwidget_instances = ($ccontent_cwidget_instances=="") ? 
+		$ccontent_instance : $ccontent_cwidget_instances . "," . $ccontent_instance;
+	
+	// store the instances into this widget
+	$ctheme->option("ccontent_id", "".$ccontent_id);
+	$ctheme->option("ccontent_instances", $ccontent_instances);
+	$ctheme->option($cwidget_id, $ccontent_cwidget_instances);
+	wp_die(); // terminate immediately and return a response
+} // end CContent_doCreateInstance()
+add_action("wp_ajax_ccontent_create", "CContent_doCreateInstance");
 ?>

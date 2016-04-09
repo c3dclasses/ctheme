@@ -12,7 +12,7 @@ include_js(relname(__FILE__) . "/ctheme.js", array("minify"=>false));	// include
 // desc: defines a theme object
 //---------------------------------------------------------------------------
 class CTheme extends CKernal {	
-	protected $m_strname;	// stores the theme name
+	protected $m_strname;				// stores the theme name
 	static protected $m_ctheme = NULL;	// stores the theme object 
 	
 	public function CTheme() {
@@ -29,23 +29,23 @@ class CTheme extends CKernal {
 	public function getCForm() { global $CThemeForm; return $CThemeForm; }
 	public function getCControls() { $cform = $this->getCForm(); return ($cform)?$cform->getCControls():NULL; }
 	public function getCOptions() { $cform = $this->getCForm(); return ($cform)?$cform->getCOptions():NULL; }
-	public function option() { $ret=call_user_func_array("CTheme_options", func_get_args()); return (func_num_args() == 1) ? $ret : $this; } 
-	public function removeOption($name) { CTheme_delOptions($name);	return $this; }
+	public function option() { $ret=call_user_func_array("CTheme_option", func_get_args()); return (func_num_args() == 1) ? $ret : $this; } 
+	public function removeOption($name) { CTheme_removeOptions($name);	return $this; }
 	
 	// ckernal override methods
 	public function process() {
 		$this->init();	
-		if (!$this->s_main()) { $this->body();}
-		else {}
+		if (!$this->s_main()) { 
+			$this->body();
+		} // end if
 		$this->unload();
 		$this->deinit();
 		return true;
 	} // end main()
 	public function body() { echo CTheme_doBody($this); return true; }
-	public function head() { return CTheme_doHead($this); } 
-	public function foot() { return parent :: foot() . CTheme_doFoot($this); } 
-	public function admin_body() { CTheme_doAdminBody($this); } 
-	
+	public function head() { return CTheme_doHead($this) . parent :: head(); }
+	public function foot() { return parent :: foot() . CTheme_doFoot($this); }
+	public function admin_body() { CTheme_doAdminBody($this); }
 	public function load($strpath) { include_contents($strpath); return parent :: load($strpath); }
 	 
 	// static methods
@@ -55,7 +55,7 @@ class CTheme extends CKernal {
 		if (!$strname || !$ctheme)	
 			return NULL;
 		$ctheme->setName($strname);	// store the theme name
-		$ctheme->load($strpath);		// load the kernal and its objects - programs / elements
+		$ctheme->load($strpath);	// load the kernal and its objects - programs / elements
 		return $ctheme;
 	} // end createCTheme()
 	
@@ -68,7 +68,7 @@ class CTheme extends CKernal {
 	} // end customize()
 } // end CTheme
 
-// includes
+// include
 function include_theme($strid, $strpath, $strtype="CTheme") {
 	return CTheme :: createCTheme($strpath, $strtype);
 } // end include_theme()

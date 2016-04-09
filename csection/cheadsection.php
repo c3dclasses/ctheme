@@ -1,25 +1,23 @@
 <?php
 //------------------------------------------------------------------------------------
-// file: cbodysection.php
-// desc: defines the custom body csection containing the major sections of the theme
+// file: cheadsection.php
+// desc: defines the custom head csection containing the major sections of the theme
 //------------------------------------------------------------------------------------
 
 //-------------------------------------------------
-// name: CBodySection
-// desc: defines the body section object
+// name: CHeadSection
+// desc: defines the head section object
 //-------------------------------------------------
-class CBodySection extends CSection {
+class CHeadSection extends CSection {
 	public function innerhtml() { 
 		if (!$ctheme = CTheme :: getCTheme())
 			return "";
-		$str = $ctheme->headr();
+		$str .= $ctheme->head(); 
 		$str .= parent :: innerhtml();
-		$str .= $ctheme->footer();	
-		$str .= CHook :: fire("csection_foot") . "<!-- end div.csection_foot -->\n"; // execute the foot section in the body
 		return $str;
 	} // innerhtml()
 	
 	public function admin_body() {
 	} // end admin_body()
-} // end CBodySection
+} // end CHeadSection
 ?>

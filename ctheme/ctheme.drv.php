@@ -1,16 +1,19 @@
 <?php
 //------------------------------------------------------------------------------------
 // name: ctheme.drv.php
-// desc: integrates ctheme with wordpress and c3dclassessdk
+// desc: integrates c3dclassessdk ctheme with wordpress 
 //------------------------------------------------------------------------------------
 
 // includes
 include("ctheme.php");
 
-// funcitons
+///////////////
+// functions
+///////////////
+
 function CTheme_doDocType($ctheme) {
 	$strhtml="html";
-	return "<!DOCTYPE $strhtml>";
+	return "<!DOCTYPE $strhtml>\n";
 } // end CTheme_doDocType()
 
 function CTheme_doTitle($ctheme) {
@@ -24,13 +27,14 @@ function CTheme_doTitle($ctheme) {
 		echo " | $site_description";
 	if ($paged >= 2 || $page >= 2)
 		echo ' | ' . sprintf(__('Page %s', 'twentyeleven'), max($paged, $page));
-	echo "</title>";
+	echo "</title>\n";
 	return ob_end();
-}
+} // end CTheme_doTitle()
 
 function CTheme_doHTML($ctheme) {
 	$id = $ctheme->getID();
 	$class = $ctheme->getClass();
+	$inlinestyle = $ctheme->option("ctheme-inline-style");
 	ob_start();
 ?>
 <!--[if IE 6]>
@@ -43,7 +47,7 @@ function CTheme_doHTML($ctheme) {
 <html id="ie8" <?php language_attributes(); ?>>
 <![endif]-->
 <!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
-<html <?php language_attributes(); ?> class="<?php echo $class; ?>" id="<?php echo $id; ?>">
+<html <?php language_attributes(); ?> class="<?php echo $class; ?> <?php echo $id;?>" id="<?php echo $id; ?>" style="<?php echo $inline_style; ?>">
 <!--<![endif]-->
 <?php
 	return ob_end();
@@ -53,11 +57,9 @@ function CTheme_doHead($ctheme) {
 	$stylesheet_url = get_bloginfo('stylesheet_url');		// the theme's style sheet
 	$reset_url = relname(__FILE__) . "/cbase/reset.css";	// resets the theme's css
 	$style = $ctheme->option("ctheme-style-text");
-	$sitestyle = $ctheme->option("ctheme-site-style-text");
 	$classstyle = $ctheme->option("ctheme-class-style-text");
 	$id = $ctheme->getID();
 	$class = $ctheme->getClass();
-	
 	$str = "\n<!-- BEGIN CTheme_doHead() -->\n";
 	$str .= CTheme_doTitle($ctheme);
 	$str .= "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"{$reset_url}\" />\n"; // reset.css
@@ -69,14 +71,13 @@ function CTheme_doHead($ctheme) {
 	$str .= "\n<!-- End Wordpress Stuff -->\n";
 	$str .= "\n<!-- END CTheme_doHead() -->\n";
 	$str .= "\n<!-- BEGIN CTheme_doStyle() -->\n";
-	$str .= "<style>";
-	$str .= "/* ctheme styles ////////////////////////////// */\r\n"; 
-	$str .=	"{$sitestyle}\r\n";
+	$str .= "<style>\n";
+	$str .= "/*///////////////////////////// ctheme styles ////////////////////////////// */\r\n"; 
 	$str .= ".{$class}{{$classstyle}}\r\n";
 	$str .= ".{$id}{{$classstyle}}\r\n";
 	$str .= "#{$id}{{$style}}\r\n";
-	$str .= "</style>";
-	$str .= "\n<!-- END CTheme_doStyle() -->\n";	
+	$str .= "</style>\n";
+	$str .= "<!-- END CTheme_doStyle() -->\n";	
 	return $str;
 } // end CTheme_doHead()
 
@@ -92,15 +93,11 @@ function CTheme_doFoot($ctheme) {
 } // end CTheme_doFoot()
 
 function CTheme_doBody($ctheme) {
-	//$cbody = $ctheme->getCBodySection();
 	$str = CTheme_doDocType($ctheme);
-	$str .= CTheme_doHTML($ctheme);	
-	$str .= "<head>";
-	$str .= CTheme_doTitle($ctheme);
-	$str .= $ctheme->head(); 
-	$str .= "</head>";
-	$str .= CHook :: fire("csection_body");
-	$str .= "</html>";
+	$str .= CTheme_doHTML($ctheme);
+	$str .= CHook :: fire("csection_head") . "<!-- end head.csection_head -->\n"; // <head>...</head>
+	$str .= CHook :: fire("csection_body") . "<!-- end body.csection_body -->\n"; // <body>...<foot></foot></body>
+	$str .= "</html><!-- end html.ctheme -->";
 	return $str;
 } // end CTheme_doBody()
 
@@ -113,7 +110,7 @@ function CTheme_getThemeName() {
 	return str_replace(" ", "_", strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', get_current_theme())));	
 } // end  CTheme_getThemeName()
 
-function CTheme_option($params) {
+function CTheme_option() {
 	if (func_num_args() == 1) 
 		return get_theme_mod(func_get_arg(0)); 
 	set_theme_mod(func_get_arg(0), func_get_arg(1)); 
@@ -124,7 +121,7 @@ function CTheme_removeOptions($name) {
 } // end CTheme_removeOptions()
 
 function CTheme_removeOption($name) {
-	remove_theme_mods($name);	
+	remove_theme_mod($name);	
 } // end CTheme_removeOption()
 
 function CTheme_options() {
@@ -153,8 +150,6 @@ function CTheme_addCustomizeFunc($strfunc){
 	global $CTheme_CustomizeFuncs;
 	if(!function_exists($strfunc))
 		return;
-	//if(!$CTheme_CustomizeFuncs)
-	//	$CTheme_CustomizeFuncs=array();
 	$CTheme_CustomizeFuncs[]=$strfunc;
 } // end CTheme_addCustomizeFunc()
 
@@ -167,7 +162,10 @@ function CTheme_doCustomizeFuncs($ctheme){
 	} // end foreach
 } // end CTheme_fireCustomizeFuncs()
 
+////////////
 // hooks
+////////////
+
 function CTheme_pluginActivation() {CTheme_checkC3DClassesSDK();}
 register_activation_hook(__FILE__, "CTheme_pluginActivation");
 

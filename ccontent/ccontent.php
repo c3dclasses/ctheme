@@ -14,24 +14,24 @@ include_js(dirname(__FILE__) ."/ccontent.js");
 class CContent extends CElement {	
 	protected static $m_arrccontenttypes = NULL;	// stores all of the registered ccontent types
 	protected static $m_ccontents = NULL;			// stores all of the ccontent instances
-	protected $m_cform;								// stores the cform object of this content
 	protected $m_strname;							// stores the namespaces of this control
+	protected $m_parentid;							// stores the widget instance id
+	protected $m_ccontentid;						// stores the content instance id
 	
 	public function CContent() { 
 		parent::CElement(); 
-		$this->m_cform=NULL;
 	} // end CContent()
 	
+	public function setCContentInstanceID($ccontentid){ $this->m_ccontentid = $ccontentid; }
+	public function getCContentInstanceID(){ return $this->m_ccontentid; }
+	public function setParentInstanceID($parentid){ $this->m_parentid = $parentid; }
+	public function getParentInstanceID(){ return $this->m_parentid; }
+	
 	public function init() {} 
-	public function create($cform, $params=NULL) { if (!$cform) return false; parent::create($params); $this->m_cform = $cform; return true; }
+	public function create($params=NULL) { parent::create($params); } 
 	public function innerhtml() { return "[CContent::innerhtml()]"; }
 	public function admin_body() {}
-	
-	// cform, coptions, ccontrols
-	public function getCForm() { return $this->m_cform; }	
-	public function getCControls() { return ($this->m_cform)?$this->m_cform->getCControls():NULL; }	
-	public function getCOptions() { return ($this->m_cform)?$this->m_cform->getCOptions():NULL; }	
-	
+
 	// ccontent
 	public function addCContent($name, $ccontent) { $this->m_ccontents[$name] = $ccontent; }
 	public function getCContent($name) { return $this->m_ccontents[$name]; }

@@ -1,13 +1,17 @@
 <?php
 //---------------------------------------------------------------------------
 // file: csection.drv.php
-// desc: defines the driver functions and hooks
+// desc: defines the driver functions and hooks with wordpress
 //---------------------------------------------------------------------------
 include("csection.php");
 include("cbodysection.php");
+include("cheadsection.php");
+include("cfootsection.php");
 
 ///////////////
 // functions
+///////////////
+
 function CSection_create($params) {
 	register_sidebar($params->valueOf());
 } // end CSection_create()
@@ -26,13 +30,14 @@ function CSection_isActive($id) {
 } // end CSection_isActive()
 
 function CSection_doBody($csection) {
+	if(!$csection)
+		return "";
 	$id = $csection->param('id'); 
-	ob_start(); 
+	ob_start();
 	if(is_active_sidebar($id))
 		dynamic_sidebar($id); 
-	return ob_end();
-	//$str = ob_get_contents();
-	//ob_end_clean();
+	$str = ob_get_contents();
+	ob_end_clean();
 	return $str;
 } // CSection_doBody()
 	
@@ -51,8 +56,10 @@ function CSection_getCWidgetInstances($csection) {
 	return $cwidgetinstances;
 } // end CSection_getCWidgetInstances()
 
-///////////
+////////////
 // hooks
+////////////
+
 $CSection_head=NULL;
 $CSection_body=NULL;
 $CSection_foot=NULL;
@@ -60,16 +67,16 @@ function CSection_constructMainSections() {
 	global $CSection_head;
 	global $CSection_body;
 	global $CSection_foot;
-	$CSection_head= new CSection();	// body section
+	$CSection_head= new CHeadSection();	// body section
 	$CSection_head->tag("head");
 	$CSection_head->addClass($CSection_head->id());
 	$CSection_body = new CBodySection();	// body section
 	$CSection_body->tag("body");
 	$CSection_body->addClass($CSection_body->id());
-	$CSection_foot = new CSection();	// body section
-	$CSection_foot->tag("body");
+	$CSection_foot = new CFootSection();	// body section
+	$CSection_foot->tag("div");
 	$CSection_foot->addClass($CSection_foot->id());
-} // end CSection_initMainSections()
+} // end CSection_constructMainSections()
 CHook :: add("construct", "CSection_constructMainSections");
 
 function CSection_createMainSections() {
@@ -84,13 +91,27 @@ CHook :: add("create", "CSection_createMainSections");
 
 function CSection_doBodySection() {
 	global $CSection_body;
-	return ( $CSection_body ) ? $CSection_body->body() : "";	
-} // end createCSections()
-CHook :: add("csection_body", "CSection_BodySection");
+	return ($CSection_body) ? $CSection_body->body() : "";	
+} // end CSection_doBodySection()
+CHook :: add("csection_body", "CSection_doBodySection");
 
+function CSection_doHeadSection() {
+	global $CSection_head;
+	return ($CSection_head) ? $CSection_head->body() : "";
+} // end CSection_doHeadSection()
+CHook :: add("csection_head", "CSection_doHeadSection");
+
+function CSection_doFootSection() {
+	global $CSection_foot;
+	return ($CSection_foot) ? $CSection_foot->body() : "";	
+} // end CSection_doFootSection()
+CHook :: add("csection_foot", "CSection_doFootSection");
+
+/*
 function CSection_doAdminBodySection() {
 	global $CSection_body;
 	$CSection_body->admin_body();	
-} // end createCSections()
+} // end CSection_doAdminBodySection()
 CHook :: add("admin_body", "CSection_doAdminBodySection");
+*/
 ?>

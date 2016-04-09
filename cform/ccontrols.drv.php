@@ -6,31 +6,31 @@
 
 /////////////////////////
 // CWidgetControls
+/////////////////////////
 
 //-------------------------------------------------
 // name: CWidgetControls
 // desc: sets up the control 
 //-------------------------------------------------
 class CWidgetControls extends CControls {
-	//public function ccontent( $strtype, $strmethod, $params, $coptionstype="COptions", $ccontrolstype="CControls"){
-	//	$cform = $this->m_cform->getCForm($strname="", $params=NULL, $COptionsType="COptions", $CControlsType="CControls")
-	//	$strmethod( $ )
-	//}
-	
 	public function processParams($params) { 
 		$params["cwidgetinstance"] = $this->m_cform->getCWidgetInstance();
-		//$params["cform-params"]=$this->m_cform->getParams();	
 		return CWidgetControls_processParams($params); 
 	} // end processParams
 } // end CWidgetControls
 
+//------------------------------------------------
+// name: CWidgetControls_processParams()
+// desc: 
+//------------------------------------------------
 function CWidgetControls_processParams($params){	
-	if( !$params || !($cwidgetinstance = $params["cwidgetinstance"]) ||
-		!($cwidget = $cwidgetinstance->getWidget())){
+	if(!$params || !($cwidgetinstance = $params["cwidgetinstance"]) || !($cwidget = $cwidgetinstance->getWidget())){
+		if(!$cwidget = $cwidgetinstance->param("cwidget")) { // check if a temp widget exists
 			printbr("CWidgetControls_processParams:Error");	
-			return;
-		}
-		
+			return "";
+		} // end if
+	} // end if
+	
 	$strtype = $params["ccontrol-type"];
 	$strname = $params["ccontrol-name"];
 	$value = $params["ccontrol-value"];
@@ -38,6 +38,7 @@ function CWidgetControls_processParams($params){
 	$strid = $cwidget->get_field_id($strname);
 	$strfieldname = $cwidget->get_field_name($strname);
 	$strcontrol="";
+	
 	if($strtype == "section")
 		$strcontrol = "";
 	else if($strtype == "label"){
@@ -68,12 +69,13 @@ function CWidgetControls_processParams($params){
 			} // end foreach 
 		$strcontrol = "<select autocomplete=\"off\" class=\"widefat\" id=\"$strid\" name=\"$strfieldname\">$stroptions</select>";
 	} // end else if
-	else return;
+	else return "";
 	return $strcontrol;
 } // end CWidgetControls_processParams()
 
 /////////////////////////
 // CThemeControls
+/////////////////////////
 
 //-------------------------------------------------
 // name: CThemeControls

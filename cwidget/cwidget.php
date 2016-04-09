@@ -18,12 +18,10 @@ class CWidget extends WP_WidgetEx {
 	public function init() {}
 	public function body() {}
 	public function admin_body() {}
-	public static function register($strclassname) { 
-		add_action('widgets_init', function() use($strclassname) {register_widget($strclassname);}); 
-	} // end register()
+	public static function register($strclassname) { parent :: register($strclassname); }
 } // end CWidget
 
-// hooks
+// includes
 function include_widget($strclassname) { CWidget :: register($strclassname); }
 
 // include this widget

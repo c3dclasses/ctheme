@@ -66,10 +66,15 @@ class CSection extends CElement {
 		return $csections;
 	} // end getCSections()
 	
-	public function innerhtml() { return CSection_doBody($this); }
+	public function innerhtml() { 
+		return CSection_doBody($this);
+	} // end innerhtml()
+	
 	public function admin_body() {}
 	
 	// returns lightweight csection object by id
-	static public function getCSectionByName($strname) { return (($celements = CElement::getCElements())) ? ($celements[$strname]) : NULL; }	
+	static public function getCSectionByName($strname) { 
+		return (($celements = CElement::getCElements())) ? ($celements[$strname]) : NULL; 
+	} // end getCSectionByName()
 } // end CSection
 ?>

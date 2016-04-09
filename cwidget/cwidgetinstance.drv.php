@@ -20,7 +20,6 @@ class CWidgetInstance extends CElement{
 	public function CWidgetInstance() { 
 		$this->m_instance = NULL;
 		$this->m_previnstance = NULL;
-		$this->m_cccontents = NULL;
 		$this->m_args = NULL;
 		$this->m_cform = new CWidgetForm("CWidgetOptions","CWidgetControls"); // controls
 		$this->m_cform->setCWidgetInstance($this);
@@ -33,8 +32,11 @@ class CWidgetInstance extends CElement{
 		if (!$params)
 			return false;		
 		$this->m_params->create($params);
-		$id = $this->param('id');
-		$cwidget = $this->getWidget();
+		if(!($cwidget = $this->getWidget()) && !($cwidget = $this->param("cwidget"))){
+			return false;
+		}
+		
+		$id = $cwidget->id; 
 		$widgetname = $cwidget->id_base;
 		$classid = str_replace("instance","",$this->id());
 		$this->m_cform->create($id,$this);
@@ -53,6 +55,11 @@ class CWidgetInstance extends CElement{
 	public function prevInstance($instance=NULL) { if ($instance) $this->m_previnstance = $instance; return $this->m_previnstance; }
 	public function args($args) { if ($args) $this->m_args = $args; return $this->m_args; }
 	public function param() { $ret=call_user_func_array(array($this->m_params,"attr"), func_get_args()); return (func_num_args() == 1) ? $ret : $this; } 
+	public function isActive() {
+		//printbr($this->param('id'));
+		return is_active_widget( false, false, $this->param('id'), true);
+		//is_active_widget( false, false, $cwidget->id_base, true )
+	} // end isActive()
 	
 	public function getWidget() { 
 		if (($callback=$this->param('callback')) == NULL && isset($callback[0]) == false)
@@ -69,7 +76,7 @@ class CWidgetInstance extends CElement{
 	public function getWidgetField($field) { 
 		return (($widget = $this->getWidget()) ? array("id"=>$widget->get_field_id($field), 
 								"name"=>$widget->get_field_name($field)) : NULL);
-	}
+	} // end getWidgetField()
 	function getWidgetID() { return $this->param('id'); }
 	function getWidgetNumber() { return $this->param('number'); }
 	function getWidgetDescription() { return $this->param('description'); }
@@ -89,8 +96,9 @@ class CWidgetInstance extends CElement{
 	
 	// admin methods
 	public function admin_body() {
-		if (!$ccontrols = $this->getCControls())
+		if (!$ccontrols = $this->getCControls()) {
 			return;
+		} // end if
 		echo "<p>";
 		echo $ccontrols->label("title", "Name:");
 		echo $ccontrols->text("title","");
@@ -124,7 +132,7 @@ class CWidgetInstance extends CElement{
 	static public function getCWidgetInstances() { return CWidgetInstance :: $m_cwidgetinstances; }	
 	static public function getCWidgetInstanceByName($name) {} 
 	static public function getCWidgetInstanceByID($id, $params=NULL) { 
-		$cwidgetintstances = CWidgetInstance :: getCWidgetInstances();
+		$cwidgetintstances = CWidgetInstance :: getCWidgetInstances();	
 		if ($cwidgetintstances && isset($cwidgetintstances[$id])) // is it cached
 			return $cwidgetintstances[$id];	
 		if ($params == NULL || ($cwidgetinstance = new CWidgetInstance()) == NULL || 

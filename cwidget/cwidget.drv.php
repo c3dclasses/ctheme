@@ -10,12 +10,13 @@
 //----------------------------------------------
 class WP_WidgetEx extends WP_Widget {
 	public function create($strclassname, $strwidgetname, $strwidgetdesc) {
-		$this->WP_Widget(strtolower($strclassname),$strwidgetname,array('description'=>__($strwidgetdesc, strtolower($strclassname))));		
+	$this->WP_Widget(strtolower($strclassname),$strwidgetname,array('description'=>__($strwidgetdesc, strtolower($strclassname))));		
 		return true; 
 	} // end create()
 	
 	public function form($instance) { 
-		if (!$cwidgetinstance = CWidgetInstance :: getCWidgetInstanceByID($this->id))
+		$params = array("cwidget"=>$this);
+		if (!$cwidgetinstance = CWidgetInstance :: getCWidgetInstanceByID($this->id, $params))
 			return;	
 		$cwidgetinstance->instance($instance);
 		$cwidgetinstance->admin_body();
@@ -46,11 +47,12 @@ class WP_WidgetEx extends WP_Widget {
 	public function update_callback($widget_args=1) {
 		if (!$cwidgetinstance = CWidgetInstance :: getCWidgetInstanceByID($this->id))
 			return;
-		//if (isset($_REQUEST['delete_widget']) && $_REQUEST['delete_widget'] && isset($_REQUEST['the-widget-id'])) {
-		//	$cwidgetinstance->destroy();	
-		//}
 		parent::update_callback($widget_args);
 	} // end update_callback()
+	
+	static public function register($strclassname){
+		add_action('widgets_init', function() use($strclassname) {register_widget($strclassname);}); 
+	} // end register
 } // end WP_WidgetEx
 
 // C3DClassesSDK driver methods 
@@ -72,8 +74,8 @@ function CWidget_removeOptions() {
 } // end CTheme_removeOptions()
 
 // wordpress like methods
-function get_widget_options($type, $number, $name) {
-	return ($type=="" || ($widgets = get_option($type)) == NULL || isset($widgets[$number]) == false || isset($widgets[$number][$name]) == false) ? 
+function get_widget_options($type, $number) {
+	return ($type=="" || ($widgets = get_option($type)) == NULL || isset($widgets[$number]) == false) ? 
 		NULL : $widgets[$number];
 } // end get_widget_options()
 
